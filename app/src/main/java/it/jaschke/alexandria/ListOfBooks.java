@@ -1,7 +1,10 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import it.jaschke.alexandria.api.BookListAdapter;
 import it.jaschke.alexandria.api.Callback;
@@ -56,7 +60,13 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ListOfBooks.this.restartLoader();
+                        if(isNetworkAvailable()) {
+                            ListOfBooks.this.restartLoader();
+                        }
+                        else
+                        {
+                            Toast.makeText(getActivity(), R.string.internet_availability, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
         );
@@ -77,6 +87,13 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
         });
 
         return rootView;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     private void restartLoader(){
